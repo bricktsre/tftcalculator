@@ -1,4 +1,4 @@
-# dash-tft
+# tftcalculator
  TFT shop odds calculator presented in a dash app
  
  

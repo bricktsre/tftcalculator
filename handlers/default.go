@@ -1,15 +1,18 @@
 package handlers
 
 import (
-	"log/slog"
+	"context"
 	"net/http"
 
-	"github.com/bricktsre/dash-tft/components"
-	"github.com/bricktsre/dash-tft/services"
-	"github.com/bricktsre/dash-tft/session"
+	"github.com/bricktsre/tftcalculator/components"
+	"github.com/bricktsre/tftcalculator/services"
+	"github.com/bricktsre/tftcalculator/session"
+	"golang.org/x/exp/slog"
 )
 
-type XService interface {
+type CalculatorService interface {
+	Increment(ctx context.Context, sessionID string) (counts services.Counts, err error)
+	Get(ctx context.Context, sessionID string) (counts services.Counts, err error)
 }
 
 func New(log *slog.Logger, cs CalculatorService) *DefaultHandler {
