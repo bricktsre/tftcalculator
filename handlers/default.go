@@ -59,14 +59,16 @@ func (h *DefaultHandler) Post(w http.ResponseWriter, r *http.Request) {
 
 	// Display the view.
 	h.View(w, r, ViewProps{
-		Counts: counts,
+		Counts:       counts,
+		LevelOptions: []string{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"},
 	})
 }
 
 type ViewProps struct {
-	Counts services.Counts
+	Counts       services.Counts
+	LevelOptions []string
 }
 
 func (h *DefaultHandler) View(w http.ResponseWriter, r *http.Request, props ViewProps) {
-	components.Page(props.Counts.Global, props.Counts.Session).Render(r.Context(), w)
+	components.Page(props.Counts.Global, props.Counts.Session, props.LevelOptions).Render(r.Context(), w)
 }

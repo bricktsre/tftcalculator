@@ -10,7 +10,7 @@ css border() {
 	padding-bottom: 30px;
 }
 
-templ counts(global, session int) {
+templ counts(global, session int, levelOptions []string) {
 	<form id="countsForm" action="/" method="POST" hx-post="/" hx-select="#countsForm" hx-swap="outerHTML">
 		<div class="columns">
 			<div class={ "column", "has-text-centered", "is-primary", border }>
@@ -20,10 +20,37 @@ templ counts(global, session int) {
 			</div>
 			<div class={ "column", "has-text-centered", border }>
 				<h1 class="title is-size-1 has-text-centered">{ strconv.Itoa(session) }</h1>
-				<p class="subtitle has-text-centered">Level</p>
 				<div>
-					<label for="level">Level</label><br>
-					<input type="text" id="level" name="level">	
+					<label for="level">Level</label>
+					<select id="levelDropdown" name="levelDropdown">
+            			for _, item := range levelOptions {
+            				<option value="{item}">{item}</option>
+            			}
+        			</select>
+					<label for="tier">Tier</label>
+					<select id="tierDropdown" name="tierDropdown">
+						<option value="1">1</option>
+						<option value="2">2</option>
+						<option value="3">3</option>
+						<option value="4">4</option>
+						<option value="5">5</option>
+					</select>
+					<label for="goalDropdown">Goal</label>
+					<select id="goalDropdown" name="goalDropdown">
+						<option value="1">1</option>
+						<option value="2">2</option>
+						<option value="3">3</option>
+						<option value="4">4</option>
+						<option value="5">5</option>
+						<option value="6">6</option>
+						<option value="7">7</option>
+						<option value="8">8</option>
+						<option value="9">9</option>
+					</select>
+					<label for="copiesOwned">Copies Owned</label>
+					<input id="copiesOwned" name="copiesOwned" type="text">
+					<label for="tierOwned">Tier Owned</label>
+					<input id="tierOwned" name="tierOwned" type="text">
 				</div>
 				<div><button class="button is-secondary" type="submit" name="session" value="session">Calculate</button></div>
 			</div>
@@ -31,7 +58,7 @@ templ counts(global, session int) {
 	</form>
 }
 
-templ Page(global, session int) {
+templ Page(global, session int, levelOptions []string) {
 	<html>
 		<head>
 			<meta charset="UTF-8"/>
@@ -56,7 +83,7 @@ templ Page(global, session int) {
 				<div class="container">
 					<div class="columns is-centered">
 						<div class="column is-half">
-							@counts(global, session)
+							@counts(global, session, levelOptions)
 						</div>
 					</div>
 				</div>
