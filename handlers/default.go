@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"net/http"
+	"strconv"
 
 	"github.com/bricktsre/tftcalculator/components"
 	"github.com/bricktsre/tftcalculator/services"
@@ -11,7 +12,7 @@ import (
 )
 
 type CalculatorService interface {
-	Increment(ctx context.Context, sessionID string) (counts services.Counts, err error)
+	Calculate(ctx context.Context, sessionID string, level, tier, goal, copiesOwned, tierOwned int) (counts services.Counts, err error)
 	Get(ctx context.Context, sessionID string) (counts services.Counts, err error)
 }
 
@@ -44,13 +45,54 @@ func (h *DefaultHandler) Get(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "failed to get counts", http.StatusInternalServerError)
 		return
 	}
+	props.LevelOptions = []string{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"}
+
 	h.View(w, r, props)
 }
 
 func (h *DefaultHandler) Post(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 
-	counts, err := h.CalculatorService.Increment(r.Context(), session.ID(r))
+	var level, tier, goal, copiesOwned, tierOwned int
+	var err error
+
+	if r.Form.Has("levelDropdown") {
+		level, err = strconv.Atoi(r.Form.Get("levelDropdown"))
+		if err != nil {
+			h.Log.Error("Error parsing level dropdown value")
+		}
+	}
+
+	if r.Form.Has("tierDropdown") {
+		tier, err = strconv.Atoi(r.Form.Get("tierDropdown"))
+		if err != nil {
+			h.Log.Error("Error parsing tier dropdown value")
+		}
+	}
+
+	if r.Form.Has("goalDropdown") {
+		goal, err = strconv.Atoi(r.Form.Get("goalDropdown"))
+		if err != nil {
+			h.Log.Error("Error parsing goal dropdown value")
+		}
+	}
+
+	if r.Form.Has("copiesOwned") {
+		copiesOwned, err = strconv.Atoi(r.Form.Get(("copiesOwned")))
+		if err != nil {
+			h.Log.Error("Error parsing copies owned input")
+		}
+	}
+
+	if r.Form.Has("tierOwned") {
+		tierOwned, err = strconv.Atoi(r.Form.Get(("tierOwned")))
+		if err != nil {
+			h.Log.Error("Error parsing tier owned input")
+		}
+	}
+
+	var counts services.Counts
+	counts, err = h.CalculatorService.Calculate(r.Context(), session.ID(r), level, tier, goal, copiesOwned, tierOwned)
 	if err != nil {
 		h.Log.Error("failed to calculate", slog.Any("error", err))
 		http.Error(w, "failed to calculate", http.StatusInternalServerError)
@@ -70,5 +112,5 @@ type ViewProps struct {
 }
 
 func (h *DefaultHandler) View(w http.ResponseWriter, r *http.Request, props ViewProps) {
-	components.Page(props.Counts.Global, props.Counts.Session, props.LevelOptions).Render(r.Context(), w)
+	components.Page(props.Counts.ExpectedRolls, props.LevelOptions).Render(r.Context(), w)
 }

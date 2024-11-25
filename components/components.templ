@@ -10,21 +10,20 @@ css border() {
 	padding-bottom: 30px;
 }
 
-templ counts(global, session int, levelOptions []string) {
+templ counts(expectedRolls int, levelOptions []string) {
 	<form id="countsForm" action="/" method="POST" hx-post="/" hx-select="#countsForm" hx-swap="outerHTML">
 		<div class="columns">
 			<div class={ "column", "has-text-centered", "is-primary", border }>
-				<h1 class="title is-size-1 has-text-centered">{ strconv.Itoa(global) }</h1>
+				<h1 class="title is-size-1 has-text-centered"></h1>
 				<p class="subtitle has-text-centered">Global</p>
 				<div><button class="button is-primary" type="submit" name="global" value="global">+1</button></div>
 			</div>
 			<div class={ "column", "has-text-centered", border }>
-				<h1 class="title is-size-1 has-text-centered">{ strconv.Itoa(session) }</h1>
 				<div>
 					<label for="level">Level</label>
 					<select id="levelDropdown" name="levelDropdown">
             			for _, item := range levelOptions {
-            				<option value="{item}">{item}</option>
+            				<option>{item}</option>
             			}
         			</select>
 					<label for="tier">Tier</label>
@@ -53,12 +52,13 @@ templ counts(global, session int, levelOptions []string) {
 					<input id="tierOwned" name="tierOwned" type="text">
 				</div>
 				<div><button class="button is-secondary" type="submit" name="session" value="session">Calculate</button></div>
+				<h1 class="title is-size-1 has-text-centered">{ strconv.Itoa(expectedRolls) }</h1>
 			</div>
 		</div>
 	</form>
 }
 
-templ Page(global, session int, levelOptions []string) {
+templ Page(expectedRolls int, levelOptions []string) {
 	<html>
 		<head>
 			<meta charset="UTF-8"/>
@@ -83,7 +83,7 @@ templ Page(global, session int, levelOptions []string) {
 				<div class="container">
 					<div class="columns is-centered">
 						<div class="column is-half">
-							@counts(global, session, levelOptions)
+							@counts(expectedRolls, levelOptions)
 						</div>
 					</div>
 				</div>
