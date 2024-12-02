@@ -55,11 +55,13 @@ func (h *DefaultHandler) Post(w http.ResponseWriter, r *http.Request) {
 
 	var level, tier, goal, copiesOwned, tierOwned int
 	var err error
+	errorOccurred := false
 
 	if r.Form.Has("levelDropdown") {
 		level, err = strconv.Atoi(r.Form.Get("levelDropdown"))
 		if err != nil {
 			h.Log.Error("Error parsing level dropdown value")
+			errorOccurred = true
 		}
 	}
 
@@ -67,6 +69,7 @@ func (h *DefaultHandler) Post(w http.ResponseWriter, r *http.Request) {
 		tier, err = strconv.Atoi(r.Form.Get("tierDropdown"))
 		if err != nil {
 			h.Log.Error("Error parsing tier dropdown value")
+			errorOccurred = true
 		}
 	}
 
@@ -74,6 +77,7 @@ func (h *DefaultHandler) Post(w http.ResponseWriter, r *http.Request) {
 		goal, err = strconv.Atoi(r.Form.Get("goalDropdown"))
 		if err != nil {
 			h.Log.Error("Error parsing goal dropdown value")
+			errorOccurred = true
 		}
 	}
 
@@ -81,6 +85,7 @@ func (h *DefaultHandler) Post(w http.ResponseWriter, r *http.Request) {
 		copiesOwned, err = strconv.Atoi(r.Form.Get(("copiesOwned")))
 		if err != nil {
 			h.Log.Error("Error parsing copies owned input")
+			errorOccurred = true
 		}
 	}
 
@@ -88,15 +93,20 @@ func (h *DefaultHandler) Post(w http.ResponseWriter, r *http.Request) {
 		tierOwned, err = strconv.Atoi(r.Form.Get(("tierOwned")))
 		if err != nil {
 			h.Log.Error("Error parsing tier owned input")
+			errorOccurred = true
 		}
 	}
 
 	var counts services.Counts
-	counts, err = h.CalculatorService.Calculate(r.Context(), session.ID(r), level, tier, goal, copiesOwned, tierOwned)
-	if err != nil {
-		h.Log.Error("failed to calculate", slog.Any("error", err))
-		http.Error(w, "failed to calculate", http.StatusInternalServerError)
-		return
+	if !errorOccurred {
+		counts, err = h.CalculatorService.Calculate(r.Context(), session.ID(r), level, tier, goal, copiesOwned, tierOwned)
+		if err != nil {
+			h.Log.Error("failed to calculate", slog.Any("error", err))
+			http.Error(w, "failed to calculate", http.StatusInternalServerError)
+			return
+		}
+	} else {
+		counts.ExpectedRolls = 0
 	}
 
 	// Display the view.
